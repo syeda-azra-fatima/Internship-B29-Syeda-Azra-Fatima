@@ -83,8 +83,23 @@ test  <- mydata1[-train_rows, ]
 
 
 ```{r}
+#install.packages("glmnet")
+library(glmnet)
+library(Matrix)
 
-log_reg <- glm(Class~., data = train, family = binomial, maxit = 10000)
+reg <- model.matrix(Class~., data = train)
+reg1 <- model.matrix(test$Class~., data = test)
+log_reg<-glmnet(reg,train$Class,family = "multinomial",alpha =0)
+
+
+#  x_train <- model.matrix( ~ .-1, train[,features])
+# lm = cv.glmnet(x=x_train,y = as.factor(train$y), intercept=FALSE ,family =   "multinomail", alpha=1, nfolds=7)
+# best_lambda <- lm$lambda[which.min(lm$cvm)]
+
+
+
+
+
 ```
 
 ```{r}
@@ -94,10 +109,12 @@ summary(log_reg)
 ```{r}
 library(MASS)
 library(caret)
-preds_test_lr <- predict(log_reg, test)
+preds_test_lr <- predict(log_reg, reg1,type = "class")
 preds_train_lr<-predict(log_reg,train)
-
-confusionMatrix(preds_test_lr, test$Class)
+#test$Class<-as.data.frame(test$Class)
+dim(preds_test_lr)
+length(test$Class)
+table(preds_test_lr, test$Class)
 
 confusionMatrix(preds_train_lr, train$Class)
 ```
@@ -105,8 +122,6 @@ confusionMatrix(preds_train_lr, train$Class)
 
 
 ```{r}
-prob_train <- predict(log_reg, type = "response")
-prob_train
 
 ```
 

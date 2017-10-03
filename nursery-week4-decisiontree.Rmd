@@ -1,0 +1,211 @@
+---
+title: "Untitled"
+author: "Syeda azra"
+date: "27 September 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+
+rm(list=ls(all=TRUE))
+
+setwd("C:\\Users\\Hi\\Desktop\\internship")
+
+mydata<-read.csv("nursery.csv",header=F,sep=",")
+mydata
+dim(mydata)
+summary(mydata$V9)
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+colnames(mydata) <- c("parents","has_nurs","form","children","housing","finance","social","health","Class")
+
+str(mydata)
+summary(mydata)
+unique.array(mydata)
+
+```
+
+```{r}
+
+#combinting the columns
+mydata$Class<-as.character(mydata$Class)
+mydata$Class[mydata$Class=="recommend"]="very_recom"
+mydata$Class<-as.factor(mydata$Class)
+summary(mydata$Class)
+```
+
+
+```{r}
+
+#install.packages("dummies")
+library(dummies)
+
+mydata1<- dummy.data.frame(mydata, sep = ".")
+mydata1<- mydata[,-9]
+mydata1<- dummy.data.frame(mydata1,sep=".")
+
+names(mydata1)
+mydata1$Class<-mydata$Class
+mydata1
+
+```
+
+```{r}
+
+#install.packages('caTools')
+library(caTools)
+#install.packages("MASS")
+library(MASS)
+#install.packages("caret")
+library(caret)
+
+```
+
+
+```{r}
+#data partitioning
+
+set.seed(1234)
+
+train_rows<- createDataPartition(mydata1$Class, p = 0.7,list = F)
+
+train <- mydata1[train_rows, ]
+
+test  <- mydata1[-train_rows, ]
+summary(test$Class)
+summary(train$Class)
+
+```
+
+```{r}
+
+#spliting class levels
+
+train$Class<-as.character(train$Class)
+#####
+
+ # train_not_pr<-train[which(train$Class %in% "not_recom" | train$Class %in% "priority"),]
+# table(train_not_pr$Class)
+# train_not_pr$Class<-as.factor(train_not_pr$Class)
+#head(train)
+
+#not_recom  priority 
+#     3024      2987
+######
+
+# train_not_specpr<-train[which(train$Class %in% "not_recom" | train$Class %in% "spec_prior"),]
+# table(train_not_specpr$Class)
+# train_not_specpr$Class<-as.factor(train_not_specpr$Class)
+
+#not_recom spec_prior 
+ #     3024       2831 
+
+########
+train_not_vrecom<-train[which(train$Class %in% "not_recom" | train$Class %in% "very_recom"),]
+table(train_not_vrecom$Class)
+train_not_vrecom$Class<-as.factor(train_not_vrecom$Class)
+
+
+ #not_recom very_recom 
+#    3024        231 
+
+#str(train)
+#table(train$Class)
+
+train_remaining<-train[which(train$Class %in% "priority" | train$Class %in% "spec_prior"),]
+
+###########
+
+train$Class<-as.factor(train$Class)
+
+ #summary(train_not_pr$Class)
+
+```
+
+```{r}
+#smoting
+library(dplyr)
+library(DMwR)
+train_not_vrecom$Class<-as.factor(train_not_vrecom$Class)
+class(train_not_vrecom)
+train_not_vrecom<-SMOTE(Class~., data = train_not_vrecom , perc.over =900,perc.under = 170,K=15)
+
+summary(train_not_vrecom$Class)
+
+```
+
+```{r}
+
+train1<-rbind(train_not_vrecom,train_remaining)
+table(train1$Class)
+
+
+```
+
+
+```{r}
+plot(train1$Class,legend.text = levels(train1$Class),main="Class Distribution in train",xlab="levels of Class",ylab="Frequency",col=c("Dark Green","Dark Red"))
+
+plot(test$Class,legend.text = levels(test$Class),main="Class Distribution in test",xlab="levels of Class",ylab="Frequency",col=c("Dark Green","Dark Red"))
+```
+
+
+
+```{r}
+#decision tree model
+#install.packages("C50")
+library(C50)
+
+c5_tree <- C5.0(Class ~ . , train1)
+```
+
+
+
+```{r}
+
+#build rules based tree
+
+c5_rules <- C5.0(Class ~ . , train1, rules = T)
+summary(c5_rules)
+```
+
+
+```{r}
+#important variable
+
+C5imp(c5_tree, metric = "usage")
+```
+
+```{r}
+plot(c5_tree)
+```
+
+```{r}
+preds <- predict(c5_tree, test)
+head(test)
+preds=predict(c5_tree,train1)
+
+```
+
+```{r}
+library(caret)
+
+confusionMatrix(preds, test$Class)
+
+confusionMatrix(preds, train1$Class)
+
+```
+
+
+
