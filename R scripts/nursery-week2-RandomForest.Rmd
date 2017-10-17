@@ -1,0 +1,253 @@
+---
+title: "nursery"
+author: "Syeda azra"
+date: "4 September 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+
+```{r}
+rm(list=ls(all=TRUE))
+
+setwd("C:\\Users\\Hi\\Desktop\\internship")
+
+mydata<-read.csv("nursery.csv",header=F,sep=",")
+mydata
+dim(mydata)
+summary(mydata$V9)
+```
+
+```{r}
+print(mydata)
+```
+ 
+```{r}
+#mydata1 <- data.frame(mydata(,nrow=,ncol=))
+# rownames(results) <- c("a","b") 
+colnames(mydata) <- c("parents","has_nurs","form","children","housing","finance","social","health","Class")
+
+str(mydata)
+summary(mydata)
+unique.array(mydata)
+
+```
+
+```{r}
+#combinting the columns
+mydata$Class<-as.character(mydata$Class)
+mydata$Class[mydata$Class=="recommend"]="very_recom"
+mydata$Class<-as.factor(mydata$Class)
+summary(mydata$Class)
+
+```
+
+```{r}
+sum(is.na(mydata))
+```
+
+
+```{r}
+#install.packages("ROSE")
+#library(ROSE)
+
+#check table
+#table(mydata$class)
+
+#check classes distribution
+#prop.table(table(mydata$class))
+```
+
+
+```{r}
+#build decision tree models
+#tree.rose <- rpart(class ~ ., mydata = data.rose)
+#tree.over <- rpart(class ~ ., mydata = data_balanced_over)
+#tree.under <-rpart(class ~ ., mydata = data_balanced_under)
+#tree.both <-rpart(class ~ ., mydata = data_balanced_both)
+
+#make predictions on unseen data
+#pred.tree.rose <- predict(tree.rose, newdata = mydata)
+```
+
+```{r}
+na.percentage=(sum(is.na(mydata))/(nrow(mydata)*ncol(mydata)))*100
+print(na.percentage)
+```
+
+```{r}
+sum(is.na(mydata$parents))
+na_count <-sapply(mydata, function(y) sum(length(which(is.na(y)))))
+
+na_count <- data.frame(na_count)
+print(na_count)
+
+```
+```{r}
+#library(pastecs)
+#stat.desc(mydata)
+```
+```{r}
+ #table(mydata$class)
+```
+
+
+
+
+```{r}
+par(mfrow = c(1,1))
+
+plot(mydata$parents,mydata$has_nurs, xlab = "parents", ylab = " has nursery" , main = "occupation of parents vs child's nursery")
+
+plot(mydata$children, mydata$finance, xlab = "family structure", ylab = "finance" , main = "family structure vs financial standing")
+
+plot(mydata$social,mydata$health, xlab = "social", ylab = "health" , main = "social vs   health picture of the family.")
+
+plot(mydata$parents, mydata$Class, xlab = "parents", ylab = "class" , main = "parents vs class")
+
+plot(mydata$Class, mydata$finance, xlab = "class", ylab = "finance" , main = "finance vs class")
+plot(mydata$Class, mydata$children, xlab = "class", ylab = "children" , main = "children vs class")
+plot(mydata$Class, mydata$Class, xlab = "class", ylab = "health" , main = "health vs class")
+plot(mydata$Class, mydata$social, xlab = "class", ylab = "social" , main = "social vs class")
+```
+
+```{r}
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+```{r}
+#install.packages("dummies")
+library(dummies)
+
+mydata1<- dummy.data.frame(mydata, sep = ".")
+mydata1<- mydata[,-9]
+mydata1<- dummy.data.frame(mydata1,sep=".")
+
+names(mydata1)
+mydata1$Class<-mydata$Class
+mydata1
+
+
+```
+
+
+
+```{r}
+#summary(mydata1)
+summary(mydata1$parents.usual)
+summary(mydata1$parents.pretentious)
+summary(mydata1$parents.great_pret)
+
+```
+
+```{r}
+summary(mydata1$has_nurs.proper )
+summary(mydata1$has_nurs.less_proper)
+summary(mydata1$has_nurs.improper)
+summary(mydata1$has_nurs.critical)
+summary(mydata1$has_nurs.very_crit)
+
+```
+
+```{r}
+View(mydata)
+```
+
+
+
+```{r}
+
+```
+
+
+```{r}
+install.packages('caTools')
+library(caTools)
+install.packages("MASS")
+library(MASS)
+install.packages("caret")
+library(caret)
+```
+
+
+```{r}
+#data partitioning
+
+set.seed(1234)
+
+train_rows<- createDataPartition(mydata1$Class, p = 0.7,list = F)
+
+train <- mydata1[train_rows, ]
+table(train$Class)
+train_not_pr<-train[which(train$Class %in% "not_recom" | train$Class %in% "priority"),]
+
+test  <- mydata1[-train_rows, ]
+summary(train$Class)
+
+```
+
+
+```{r}
+#smoting
+library(dplyr)
+library(DMwR)
+train$Class<-as.factor(train$Class)
+
+train<-SMOTE(Class~., data = train , perc.over =300,perc.under = 50, K=10)
+summary(train$Class)
+
+```
+
+
+```{r}
+library(randomForest)
+library(ggplot2)
+
+```
+
+
+```{r}
+model_rf <- randomForest(Class ~ . ,data=train)
+
+importance(model_rf)
+
+```
+
+
+```{r}
+varImpPlot(model_rf)
+```
+
+
+```{r}
+
+library(MASS)
+library(caret)
+preds_rf <- predict(model_rf, test)
+preds_train_rf<-predict(model_rf,train)
+
+confusionMatrix(preds_rf, test$Class)
+
+confusionMatrix(preds_train_rf, train$Class)
+
+```
+
+
+
+
+
