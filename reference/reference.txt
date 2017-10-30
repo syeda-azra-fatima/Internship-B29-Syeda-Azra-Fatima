@@ -1,0 +1,13 @@
+R lab vedio url:
+http://a.impartus.com/ilc/#/video/id/616416
+https://www.hackerearth.com/practice/machine-learnin HYPERLINK "https://www.hackerearth.com/practice/machine-learninFg/machine-learning-algorithms/beginners-tutorial-on-xgboost-parameter-tuning-r/tutorial/"Fg HYPERLINK "https://www.hackerearth.com/practice/machine-learninFg/machine-learning-algorithms/beginners-tutorial-on-xgboost-parameter-tuning-r/tutorial/"/machine-learning-algorithms/beginners-tutorial-on-xgboost-parameter-tuning-r/tutorial/
+R tutorial:
+https://www.youtube.com/watch?v=UYclmg1_KLk HYPERLINK "https://www.youtube.com/watch?v=UYclmg1_KLk&index=3&list=PLqzoL9-eJTNBDdKgJgJzaQcY6OXmsXAHU"& HYPERLINK "https://www.youtube.com/watch?v=UYclmg1_KLk&index=3&list=PLqzoL9-eJTNBDdKgJgJzaQcY6OXmsXAHU"index=3 HYPERLINK "https://www.youtube.com/watch?v=UYclmg1_KLk&index=3&list=PLqzoL9-eJTNBDdKgJgJzaQcY6OXmsXAHU"& HYPERLINK "https://www.youtube.com/watch?v=UYclmg1_KLk&index=3&list=PLqzoL9-eJTNBDdKgJgJzaQcY6OXmsXAHU"list=PLqzoL9-eJTNBDdKgJgJzaQcY6OXmsXAHU
+Random Forest vedio :  
+https://www.youtube.com/watch?v=D_2LkhMJcfY
+Random forest fitting in R
+https://www.youtube.com/watch?v=nVMw7fTlj4o
+Logistic regression model in R:
+https://www.analyticsvidhya.com/blog/2015/11/beginners-guide-on-logistic-regression-in-r/
+
+https://www.hackerearth.com/practice/machine-learning/machine-learning-algorithms/tutorial-random-forest-parameter-tuning-r/tutorial/
