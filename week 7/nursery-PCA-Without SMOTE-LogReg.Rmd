@@ -1,0 +1,262 @@
+---
+title: "Untitled"
+author: "Syeda azra"
+date: "20 October 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+
+
+
+```{r}
+rm(list=ls(all=TRUE))
+
+setwd("C:\\Users\\Hi\\Desktop\\internship\\Data set")
+
+mydata<-read.csv("nursery.csv",header=F,sep=",")
+dim(mydata)
+summary(mydata$V9)
+
+```
+
+
+
+
+
+```{r}
+colnames(mydata) <- c("parents","has_nurs","form","children","housing","finance","social","health","Class")
+
+str(mydata)
+#summary(mydata)
+#unique.array(mydata)
+
+```
+
+
+
+
+
+```{r}
+#combinting the columns
+mydata$Class<-as.character(mydata$Class)
+mydata$Class[mydata$Class=="recommend"]="very_recom"
+mydata$Class<-as.factor(mydata$Class)
+summary(mydata$Class)
+
+```
+
+
+
+
+
+```{r}
+sum(is.na(mydata))
+
+```
+
+
+
+
+
+```{r}
+#convert data into numerics
+mydata$parents = as.numeric(mydata$parents)
+
+mydata$has_nurs = as.numeric(mydata$has_nurs)
+
+mydata$form = as.numeric(mydata$form)
+mydata$children = as.numeric(mydata$children)
+mydata$housing = as.numeric(mydata$housing)
+mydata$finance = as.numeric(mydata$finance)
+mydata$social = as.numeric(mydata$social)
+mydata$health = as.numeric(mydata$health)
+
+```
+
+
+
+
+
+
+
+```{r}
+library(caret)
+library(caTools)
+library(MASS)
+
+```
+
+
+
+
+
+```{r}
+#data partitioning
+
+set.seed(1234)
+
+train_rows<- createDataPartition(mydata$Class, p = 0.7,list = F)
+
+train <- mydata[train_rows, ]
+
+test  <- mydata[-train_rows, ]
+
+summary(test$Class)
+summary(train$Class)
+
+```
+
+
+
+
+
+
+
+```{r}
+pca <- prcomp(train[, !(names(train) %in% c("Class"))])
+train_data<-predict(pca,train)
+train_data<-data.frame(train)
+
+plot(pca)
+summary(pca)
+train_data1<-data.frame(subset(train_data,select=c(parents:finance)))
+test_data1<-data.frame(subset(test,select=c(parents:finance)))
+str(train_data1)
+str(test_data1)
+
+```
+
+
+
+
+```{r}
+
+train$Class<-as.character(train$Class)
+
+train_not_vrecom<-train[which(train$Class %in% "not_recom" | train$Class %in% "very_recom"),]
+table(train_not_vrecom$Class)
+train_not_vrecom$Class<-as.factor(train_not_vrecom$Class)
+
+train_remaining<-train[which(train$Class %in% "priority" | train$Class %in% "spec_prior"),]
+
+train$Class<-as.factor(train$Class)
+
+
+
+```
+
+
+
+
+```{r}
+
+
+
+```
+
+
+
+```{r}
+
+#smoting
+library(dplyr)
+library(DMwR)
+train_not_vrecom$Class<-as.factor(train_not_vrecom$Class)
+class(train_not_vrecom)
+train_not_vrecom<-SMOTE(Class~., data = train_not_vrecom , perc.over =900,perc.under = 170,K=15)
+
+summary(train_not_vrecom$Class)
+
+```
+
+
+```{r}
+
+train1<-rbind(train_not_vrecom,train_remaining)
+table(train1$Class)
+dim(train1)
+
+
+```
+
+
+
+
+```{r}
+
+
+
+```
+
+
+
+
+
+```{r}
+
+Class<-train1$Class
+
+train_data2<-as.data.frame(cbind(train_data1,Class))
+
+
+Class<-test$Class
+
+
+test_data2<-cbind(test_data1,Class)
+
+str(test_data2)
+str(train_data2)
+
+dim(train_data1)
+length(train1$Class)
+```
+
+
+
+```{r}
+#install.packages("glmnet")
+library(glmnet)
+library(Matrix)
+
+reg <- model.matrix(Class~., data = train_data2)
+reg1 <- model.matrix(test$Class~., data = test_data2)
+
+ lm = cv.glmnet(reg,train_data2$Class,family = "multinomial",alpha =1)
+ lm$lambda.min
+log_reg<-glmnet(reg,train_data2$Class,family = "multinomial",alpha =0,lambda = lm$lambda.min)
+
+
+#  x_train <- model.matrix( ~ .-1, train[,features])
+```
+
+
+```{r}
+summary(log_reg)
+```
+
+
+```{r}
+library(MASS)
+library(caret)
+preds_test_lr <- predict(log_reg, reg1,type = "class")
+preds_train_lr<-predict(log_reg, reg,type = "class")
+
+
+
+confusionMatrix(preds_test_lr, test$Class)
+
+confusionMatrix(preds_train_lr, train_data2$Class)
+
+```
+
+
+```{r}
+
+```
+
+
