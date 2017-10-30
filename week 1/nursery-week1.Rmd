@@ -1,0 +1,169 @@
+---
+title: "nursery"
+author: "Syeda azra"
+date: "4 September 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+
+```{r}
+rm(list=ls(all=TRUE))
+
+setwd("C:\\Users\\Hi\\Desktop\\internship")
+
+mydata<-read.csv("nursery.csv",header=F,sep=",")
+dim(mydata)
+summary(mydata$V9)
+```
+
+```{r}
+print(mydata)
+```
+ 
+```{r}
+#mydata1 <- data.frame(mydata(,nrow=,ncol=))
+# rownames(results) <- c("a","b") 
+colnames(mydata) <- c("parents","has_nurs","form","children","housing","finance","social","health","Class")
+
+str(mydata)
+summary(mydata)
+
+```
+
+
+```{r}
+sum(is.na(mydata))
+```
+
+
+```{r}
+#install.packages("ROSE")
+library(ROSE)
+
+#check table
+table(mydata$class)
+
+#check classes distribution
+prop.table(table(mydata$class))
+```
+
+
+```{r}
+#build decision tree models
+tree.rose <- rpart(class ~ ., mydata = data.rose)
+tree.over <- rpart(class ~ ., mydata = data_balanced_over)
+tree.under <-rpart(class ~ ., mydata = data_balanced_under)
+tree.both <-rpart(class ~ ., mydata = data_balanced_both)
+
+#make predictions on unseen data
+pred.tree.rose <- predict(tree.rose, newdata = mydata)
+```
+
+```{r}
+na.percentage=(sum(is.na(mydata))/(nrow(mydata)*ncol(mydata)))*100
+print(na.percentage)
+```
+
+```{r}
+sum(is.na(mydata$parents))
+na_count <-sapply(mydata, function(y) sum(length(which(is.na(y)))))
+
+na_count <- data.frame(na_count)
+print(na_count)
+
+```
+```{r}
+library(pastecs)
+stat.desc(mydata)
+```
+```{r}
+ #table(mydata$class)
+```
+
+
+
+
+```{r}
+par(mfrow = c(1,1))
+
+plot(mydata$parents,mydata$has_nurs, xlab = "parents", ylab = " has nursery" , main = "occupation of parents vs child's nursery")
+
+plot(mydata$children, mydata$finance, xlab = "family structure", ylab = "finance" , main = "family structure vs financial standing")
+
+plot(mydata$social,mydata$health, xlab = "social", ylab = "health" , main = "social vs   health picture of the family.")
+
+plot(mydata$parents, mydata$Class, xlab = "parents", ylab = "class" , main = "parents vs class")
+
+plot(mydata$Class, mydata$finance, xlab = "class", ylab = "finance" , main = "finance vs class")
+plot(mydata$Class, mydata$children, xlab = "class", ylab = "children" , main = "children vs class")
+plot(mydata$Class, mydata$Class, xlab = "class", ylab = "health" , main = "health vs class")
+plot(mydata$Class, mydata$social, xlab = "class", ylab = "social" , main = "social vs class")
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+```{r}
+#install.packages("dummies")
+library(dummies)
+
+mydata1<- dummy.data.frame(mydata, sep = ".")
+names(mydata1)
+
+```
+
+
+```{r}
+#mydata$parents <- as.numeric(factor(mydata$parents , levels=c("great_pret" ,
+  #        "pretentious", "usual")))
+
+#mydata$parents 
+```
+
+
+
+
+
+```{r}
+library(corrplot)
+
+corrplot(cor(mydata1, use = "complete.obs"), method = "number")
+```
+
+
+
+
+
+```{r}
+mydata2 <- scale(mydata1[, !(names(mydata1) %in% c("class"))])
+
+mydata1[, !(names(mydata1) %in% c("class"))] <-mydata2
+
+mydata2
+```
+
+
+
+```{r}
+
+```
+
+
+
+
+
+
